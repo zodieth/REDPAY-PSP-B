@@ -11,3 +11,4 @@ npm-debug.log*
 /.claude/
 .next/
 next-env.d.ts
+.datos-pg/

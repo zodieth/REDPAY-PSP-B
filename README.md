@@ -18,11 +18,11 @@ Necesita Node 24 (corre TypeScript directo, sin build) y Postgres.
 
 ```bash
 cp .env.example .env      # completar CLAVE_CIFRADO, ADMIN_API_KEY, SESION_SECRETO, ADMIN_EMAIL/PASSWORD
-docker compose up -d      # Postgres en el 5433
 npm install
-npm run api               # aplica migraciones y escucha en :3000
+npm run db                # Postgres local en :5440 (sin Docker; datos en .datos-pg/). O: docker compose up -d
+npm run api               # en otra terminal: API en :3000
 npm run worker            # en otra terminal
-npm run panel             # backoffice y panel de comercios en :3001
+npm run panel             # en otra terminal: backoffice y panel de comercios en :3001
 ```
 
 ## Panel
