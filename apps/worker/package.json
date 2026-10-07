@@ -1,0 +1,10 @@
+{
+  "name": "@redpagos/worker",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@redpagos/cargavirtual": "*",
+    "@redpagos/core": "*",
+    "@redpagos/db": "*"
+  }
+}

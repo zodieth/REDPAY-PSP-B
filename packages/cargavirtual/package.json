@@ -1,0 +1,11 @@
+{
+  "name": "@redpagos/cargavirtual",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "undici": "^8.11.2"
+  }
+}

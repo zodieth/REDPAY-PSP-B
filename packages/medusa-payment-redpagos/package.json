@@ -1,0 +1,40 @@
+{
+  "name": "@redpagos/medusa-payment",
+  "version": "0.1.0",
+  "description": "Medusa v2: cobros por transferencia a CVU/alias con RedPagos",
+  "license": "UNLICENSED",
+  "files": [
+    ".medusa/server"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./providers/*": "./.medusa/server/src/providers/*/index.js",
+    "./*": "./.medusa/server/src/*.js"
+  },
+  "keywords": [
+    "medusa-plugin-integration",
+    "medusa-plugin-payment",
+    "medusa-v2"
+  ],
+  "scripts": {
+    "build": "medusa plugin:build",
+    "dev": "medusa plugin:develop",
+    "prepublishOnly": "medusa plugin:build",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "2.21.2",
+    "@medusajs/framework": "2.21.2",
+    "@medusajs/medusa": "2.21.2",
+    "@swc/core": "^1.7.28",
+    "@types/node": "^24.19.1",
+    "typescript": "^5.9.0"
+  },
+  "peerDependencies": {
+    "@medusajs/framework": "^2.21.0",
+    "@medusajs/medusa": "^2.21.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

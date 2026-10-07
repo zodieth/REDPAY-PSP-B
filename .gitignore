@@ -1,0 +1,11 @@
+node_modules/
+.medusa/
+dist/
+coverage/
+*.tsbuildinfo
+.env*
+!.env.example
+*.pem
+.DS_Store
+npm-debug.log*
+/.claude/
