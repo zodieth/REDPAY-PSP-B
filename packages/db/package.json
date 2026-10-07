@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./migraciones": "./src/migraciones.ts"
   },
   "dependencies": {
     "pg": "^8.16.3"

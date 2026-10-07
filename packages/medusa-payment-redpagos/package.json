@@ -1,7 +1,7 @@
 {
   "name": "@redpagos/medusa-payment",
   "version": "0.1.0",
-  "description": "Medusa v2: cobros por transferencia a CVU/alias con RedPagos",
+  "description": "Medusa v2: cobros por transferencia a CVU/alias con redpagos",
   "license": "UNLICENSED",
   "files": [
     ".medusa/server"

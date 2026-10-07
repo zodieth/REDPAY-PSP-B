@@ -107,9 +107,10 @@ admin.use(async (_c, next) => {
 });
 
 admin.get("/comercios", async (c) => c.json(await core.listarComercios()));
-admin.post("/comercios", async (c) => c.json(await core.crearComercio(await cuerpo<core.DatosComercio>(c)), 201));
+admin.post("/comercios", async (c) => c.json(await core.crearComercio(await cuerpo<core.DatosComercio>(c), "api-admin"), 201));
 admin.patch("/comercios/:id", async (c) =>
-  c.json(await core.actualizarComercio(c.req.param("id"), await cuerpo<Partial<core.DatosComercio>>(c))));
+  c.json(await core.actualizarComercio(c.req.param("id"), await cuerpo<Partial<core.DatosComercio>>(c), "api-admin")));
+admin.get("/comercios/:id/auditoria", async (c) => c.json(await core.listarAuditoria(c.req.param("id"))));
 admin.post("/comercios/:id/api-keys", async (c) => {
   await core.obtenerComercio(c.req.param("id"));
   return c.json({ api_key: await core.crearApiKey(c.req.param("id")) }, 201);
@@ -129,7 +130,7 @@ admin.post("/comercios/:id/retiros", async (c) =>
   c.json(await core.registrarRetiro(c.req.param("id"), await cuerpo<core.NuevoRetiro>(c)), 201));
 admin.post("/comercios/:id/ajustes", async (c) => {
   const b = await cuerpo<{ importe: number; descripcion: string }>(c);
-  return c.json(await core.registrarAjuste(c.req.param("id"), b.importe, b.descripcion), 201);
+  return c.json(await core.registrarAjuste(c.req.param("id"), b.importe, b.descripcion, "api-admin"), 201);
 });
 
 admin.get("/pool", async (c) => c.json(await core.estadoPool()));

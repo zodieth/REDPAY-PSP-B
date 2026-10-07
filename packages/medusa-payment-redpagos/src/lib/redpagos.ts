@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto"
 
 export type OpcionesRedpagos = {
-  /** URL de la API de RedPagos, p. ej. https://api.redpagos.com.ar */
+  /** URL de la API de redpagos, p. ej. https://api.redpagos.com.ar */
   apiUrl?: string
   /** API key del comercio (rp_...) */
   apiKey?: string
@@ -58,7 +58,7 @@ export function clienteRedpagos(o: OpcionesRedpagos = {}) {
     })
     const json = (await res.json().catch(() => ({}))) as { error?: { codigo: string; mensaje: string } }
     if (!res.ok) {
-      throw new ErrorApiRedpagos(res.status, json.error?.codigo ?? "error", json.error?.mensaje ?? `RedPagos respondió HTTP ${res.status}`)
+      throw new ErrorApiRedpagos(res.status, json.error?.codigo ?? "error", json.error?.mensaje ?? `redpagos respondió HTTP ${res.status}`)
     }
     return json as T
   }
@@ -85,6 +85,6 @@ export function firmaValida(secreto: string, body: string | Buffer, header: unkn
   return esperada.length === partes.v1.length && timingSafeEqual(Buffer.from(esperada), Buffer.from(partes.v1))
 }
 
-// Medusa v2 guarda importes en unidades de la moneda (pesos); RedPagos, en centavos.
+// Medusa v2 guarda importes en unidades de la moneda (pesos); redpagos, en centavos.
 export const aCentavos = (pesos: number) => Math.round(pesos * 100)
 export const aPesos = (centavos: number) => centavos / 100

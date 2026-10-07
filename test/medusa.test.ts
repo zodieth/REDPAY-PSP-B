@@ -96,7 +96,7 @@ test("provider de Medusa: sesión, orden en pending_authorization, webhook y cap
 });
 
 test("provider de Medusa: borrar la sesión cancela el cobro y el pool agotado falla al confirmar", async () => {
-  await db().query("TRUNCATE entregas, webhooks, movimientos, retiros, depositos, cobros, cvus, api_keys, comercios RESTART IDENTITY CASCADE");
+  await db().query("TRUNCATE auditoria, usuarios, entregas, webhooks, movimientos, retiros, depositos, cobros, cvus, api_keys, comercios RESTART IDENTITY CASCADE");
   const c = await comercio();
   await cvus(1);
   const p = new Provider({ logger: silencio }, { apiUrl: url, apiKey: await core.crearApiKey(c.id), webhookSecret: "whsec_x" });

@@ -5,3 +5,5 @@ export * from "./cobros.ts";
 export * from "./imputacion.ts";
 export * from "./libro.ts";
 export * from "./webhooks.ts";
+export * from "./usuarios.ts";
+export * from "./reportes.ts";

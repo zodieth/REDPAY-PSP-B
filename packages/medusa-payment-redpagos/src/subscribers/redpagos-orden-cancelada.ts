@@ -14,9 +14,9 @@ export default async function ordenCancelada({ event: { data }, container }: Sub
       await api.cancelar(s.cobro_id)
     } catch (e) {
       if (e instanceof ErrorApiRedpagos && e.codigo === "cobro_pagado") {
-        logger.warn(`RedPagos: se canceló la orden ${data.id} pero el cobro ${s.cobro_id} ya estaba pagado (RedPagos no hace devoluciones)`)
+        logger.warn(`redpagos: se canceló la orden ${data.id} pero el cobro ${s.cobro_id} ya estaba pagado (redpagos no hace devoluciones)`)
       } else {
-        logger.error(`RedPagos: no se pudo cancelar el cobro ${s.cobro_id} de la orden ${data.id}: ${(e as Error).message}`)
+        logger.error(`redpagos: no se pudo cancelar el cobro ${s.cobro_id} de la orden ${data.id}: ${(e as Error).message}`)
       }
     }
   }

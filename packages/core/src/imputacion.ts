@@ -119,6 +119,18 @@ export const listarHuerfanos = () =>
     SELECT d.*, v.cvu, v.alias FROM depositos d JOIN cvus v ON v.id = d.cvu_id
     WHERE d.imputacion = 'huerfano' ORDER BY d.detectado_at DESC`);
 
+// Para imputar a mano: cobros de los últimos 30 días con el importe que falta igual
+// al del depósito, primero los abiertos.
+export async function candidatosHuerfano(depositoId: string) {
+  return filas<{ id: string; comercio: string; estado: string; importe: number; recibido: number; referencia: string | null; creado_at: Date }>(db(), `
+    SELECT c.id, m.nombre AS comercio, c.estado, c.importe, c.recibido, c.referencia, c.creado_at
+    FROM depositos d
+    JOIN cobros c ON c.importe - c.recibido = d.importe AND c.estado <> 'borrador' AND c.creado_at >= now() - interval '30 days'
+    JOIN comercios m ON m.id = c.comercio_id
+    WHERE d.id = $1
+    ORDER BY (c.estado IN ('pendiente', 'parcial')) DESC, c.creado_at DESC LIMIT 10`, [depositoId]);
+}
+
 // Backoffice: asigna un depósito huérfano a un cobro (de cualquier comercio).
 export async function imputarManual(depositoId: string, cobroId: string) {
   return transaccion(async (tx) => {

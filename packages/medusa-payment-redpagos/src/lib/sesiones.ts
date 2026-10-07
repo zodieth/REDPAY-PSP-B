@@ -23,7 +23,7 @@ const CAMPOS = [
   "payment_collections.payment_sessions.data",
 ]
 
-// Sesiones de RedPagos de las órdenes que cumplen el filtro.
+// Sesiones de redpagos de las órdenes que cumplen el filtro.
 export async function sesionesRedpagos(container: MedusaContainer, filtros: Record<string, unknown>, paginacion?: { skip: number; take: number }) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const { data } = await query.graph({ entity: "order", fields: CAMPOS, filters: filtros, pagination: paginacion })

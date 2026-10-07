@@ -12,5 +12,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["test", "apps/*/src", "packages/db/src", "packages/core/src", "packages/core/test", "packages/cargavirtual/src"]
+  "include": ["test", "apps/api/src", "apps/worker/src", "packages/db/src", "packages/core/src", "packages/core/test", "packages/cargavirtual/src"]
 }

@@ -1,5 +1,5 @@
 // Red de seguridad para los webhooks: recorre las órdenes pendientes con pago de
-// RedPagos sin autorizar y consulta cada cobro.
+// redpagos sin autorizar y consulta cada cobro.
 //   pagado (el webhook no llegó) -> autoriza y captura el pago
 //   vencido / cancelado          -> cancela la orden (libera stock)
 import type { MedusaContainer } from "@medusajs/framework/types"
@@ -31,14 +31,14 @@ export default async function conciliarRedpagos(container: MedusaContainer) {
           canceladas++
         }
       } catch (e) {
-        logger.error(`RedPagos: no se pudo conciliar la orden ${s.order_id} (cobro ${s.cobro_id}): ${(e as Error).message}`)
+        logger.error(`redpagos: no se pudo conciliar la orden ${s.order_id} (cobro ${s.cobro_id}): ${(e as Error).message}`)
       }
     }
     if (ordenes < LOTE) break
   }
 
   if (pagados || canceladas) {
-    logger.info(`RedPagos: conciliación — ${pagados} pago(s) recuperado(s), ${canceladas} orden(es) vencida(s) cancelada(s)`)
+    logger.info(`redpagos: conciliación — ${pagados} pago(s) recuperado(s), ${canceladas} orden(es) vencida(s) cancelada(s)`)
   }
 }
 

@@ -1,6 +1,7 @@
 // Cuenta corriente del comercio. El saldo es la suma de sus movimientos.
 import { db, fila, filas, transaccion, type Db } from "@redpagos/db";
 import { ErrorRedpagos } from "./comun.ts";
+import { auditar } from "./comercios.ts";
 
 export type Movimiento = {
   id: number;
@@ -37,7 +38,10 @@ export async function registrarRetiro(comercioId: string, r: NuevoRetiro) {
     const ok = await fila(tx, "SELECT 1 FROM comercios WHERE id = $1 FOR UPDATE", [comercioId]);
     if (!ok) throw new ErrorRedpagos("comercio_inexistente", "No existe el comercio", 404);
     const disponible = await saldoCon(tx, comercioId);
-    if (r.importe > disponible) throw new ErrorRedpagos("saldo_insuficiente", `El saldo disponible es ${disponible} centavos`, 409);
+    if (r.importe > disponible) {
+      const pesos = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(disponible / 100);
+      throw new ErrorRedpagos("saldo_insuficiente", `Saldo insuficiente: el disponible es ${pesos}`, 409);
+    }
     const retiro = (await fila<{ id: string }>(tx, `
       INSERT INTO retiros (comercio_id, importe, entregado_por, recibido_por, comprobante, notas)
       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -53,11 +57,15 @@ export async function registrarRetiro(comercioId: string, r: NuevoRetiro) {
 export const listarRetiros = (comercioId: string) =>
   filas(db(), "SELECT * FROM retiros WHERE comercio_id = $1 ORDER BY creado_at DESC", [comercioId]);
 
-// Corrección manual del saldo (positiva o negativa), siempre con motivo.
-export async function registrarAjuste(comercioId: string, importe: number, descripcion: string) {
+// Corrección manual del saldo (positiva o negativa), siempre con motivo y queda auditada.
+export async function registrarAjuste(comercioId: string, importe: number, descripcion: string, actor = "sistema") {
   if (!Number.isInteger(importe) || importe === 0) throw new ErrorRedpagos("importe_invalido", "importe tiene que ser un entero distinto de 0");
   if (!descripcion) throw new ErrorRedpagos("datos_incompletos", "Falta la descripción del ajuste");
-  return (await fila<Movimiento>(db(),
-    "INSERT INTO movimientos (comercio_id, tipo, importe, descripcion) VALUES ($1, 'ajuste', $2, $3) RETURNING *",
-    [comercioId, importe, descripcion]))!;
+  return transaccion(async (tx) => {
+    const m = (await fila<Movimiento>(tx,
+      "INSERT INTO movimientos (comercio_id, tipo, importe, descripcion) VALUES ($1, 'ajuste', $2, $3) RETURNING *",
+      [comercioId, importe, descripcion]))!;
+    await auditar(tx, actor, comercioId, "saldo.ajuste", null, { importe, descripcion });
+    return m;
+  });
 }

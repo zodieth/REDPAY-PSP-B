@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { migrar } from "@redpagos/db";
+import { migrar } from "@redpagos/db/migraciones";
 import { app } from "./app.ts";
 
 await migrar();

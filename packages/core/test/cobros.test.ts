@@ -74,6 +74,15 @@ describe("asignación de CVU", () => {
     assert.equal((await core.estadoPool()).asignado, 1);
   });
 
+  test("no asigna CVU con error de lectura; vuelve a usarse cuando el worker lo lee bien", async () => {
+    const c = await comercio();
+    await cvus(1);
+    await db().query("UPDATE cvus SET ultimo_error = 'Login rechazado'");
+    await assert.rejects(core.crearCobro(c, { importe: 100_00 }), { codigo: "pool_agotado" });
+    await db().query("UPDATE cvus SET ultimo_error = NULL");
+    assert.equal((await core.crearCobro(c, { importe: 100_00 })).estado, "pendiente");
+  });
+
   test("no asigna CVU que el poller todavía no leyó nunca", async () => {
     const c = await comercio();
     await core.agregarCvu({ usuario: "u", clave: "c", pv: "1", cvu: "1".repeat(22) });

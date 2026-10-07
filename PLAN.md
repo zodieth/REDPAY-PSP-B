@@ -1,4 +1,4 @@
-# RedPagos — plan
+# redpagos — plan
 
 Pasarela de pagos por transferencia a CVU/alias, estilo Pago Nube, con integración a Medusa v2.
 
@@ -6,8 +6,8 @@ Pasarela de pagos por transferencia a CVU/alias, estilo Pago Nube, con integraci
 
 | Concepto | Qué es |
 |---|---|
-| **Comercio** | Cliente de RedPagos. Tiene cuenta corriente (saldo), API keys y webhooks. |
-| **Pool de CVU** | Cuentas recaudadoras de cargavirtual de RedPagos. Cada una tiene su CVU/alias. No hay cuenta maestra: cada CVU es un login aparte. |
+| **Comercio** | Cliente de redpagos. Tiene cuenta corriente (saldo), API keys y webhooks. |
+| **Pool de CVU** | Cuentas recaudadoras de cargavirtual de redpagos. Cada una tiene su CVU/alias. No hay cuenta maestra: cada CVU es un login aparte. |
 | **Cobro** | Un pago esperado. Al confirmarse la orden **bloquea un CVU exclusivo por 5 días**. Todo lo que entra a ese CVU es de ese cobro. |
 | **Comisión** | 6 % sobre el bruto de cada depósito, sin IVA aparte. Configurable por comercio (`comision_pb`). |
 | **Retiro** | El comercio retira efectivo en las oficinas. Sin día fijo: se coordina y el backoffice lo registra al entregar. |
@@ -59,7 +59,7 @@ Flujo "orden primero", con el estado `pending_authorization` que Medusa ≥ 2.21
 
 1. **Elegir el medio de pago** (`initiatePayment`): se crea un cobro en borrador, sin CVU.
 2. **Completar el carrito** (`authorizePayment`): se bloquea el CVU y se devuelve `pending_authorization`. Medusa crea la orden sin pago. El storefront muestra CVU, alias, importe y vencimiento desde `payment_session.data`.
-3. **Entra la transferencia:** RedPagos manda el webhook `cobro.pagado` a `/hooks/payment/redpagos_redpagos`. El provider responde `authorized`, Medusa vuelve a llamar `authorizePayment`, recibe `captured` y la orden queda pagada.
+3. **Entra la transferencia:** redpagos manda el webhook `cobro.pagado` a `/hooks/payment/redpagos_redpagos`. El provider responde `authorized`, Medusa vuelve a llamar `authorizePayment`, recibe `captured` y la orden queda pagada.
 4. **Job cada 15 min:** si se perdió un webhook de pago, autoriza la orden. Si el cobro venció, cancela la orden y libera el stock.
 5. **Subscriber `order.canceled`:** cancela el cobro para no dejar el CVU bloqueado.
 6. `refundPayment` falla: no hay devoluciones.
@@ -72,9 +72,10 @@ Flujo "orden primero", con el estado `pending_authorization` que Medusa ≥ 2.21
    - Worker con poller por prioridad, vencimientos, cuarentenas y cola de webhooks.
 2. ✅ **Plugin de Medusa:** provider, job de conciliación, subscriber.
    - Falta probarlo en una tienda Medusa real.
-3. ⬜ **Paneles:**
-   - Comercio: cobros, saldo, movimientos.
-   - Backoffice: alta de CVUs, ocupación del pool, huérfanos, registrar retiros. Hoy esto se hace por la API de `/admin`.
+3. ✅ **Paneles** (`apps/panel`):
+   - Backoffice con ficha por comercio: comisión editable y auditada, retiros, ajustes, usuarios, API keys.
+   - Pool de CVUs, huérfanos con sugerencias, equipo.
+   - Panel del comercio.
 4. ⬜ **Link de pago / checkout alojado** para comercios sin Medusa: página con CVU, alias, QR y cuenta regresiva.
 5. ⬜ **Producción:**
    - Deploy de API y worker, Postgres con backups, proxy con IP argentina fija.

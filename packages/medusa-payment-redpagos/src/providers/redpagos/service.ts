@@ -43,7 +43,7 @@ import {
 
 type Dependencias = { logger: Logger }
 
-// Estado de la sesión de Medusa según el estado del cobro en RedPagos.
+// Estado de la sesión de Medusa según el estado del cobro en redpagos.
 // pendiente/parcial = pending_authorization: Medusa crea la orden sin esperar el
 // pago, y cuando entra la transferencia el webhook la autoriza y captura.
 const ESTADO_SESION: Record<EstadoCobro, PaymentSessionStatus> = {
@@ -77,9 +77,9 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
 
   static validateOptions(o: Record<string, unknown>) {
     const { apiUrl, apiKey, webhookSecret } = opciones(o as OpcionesRedpagos)
-    if (!apiUrl) throw new MedusaError(MedusaError.Types.INVALID_DATA, "RedPagos: falta apiUrl (o REDPAGOS_API_URL)")
-    if (!apiKey) throw new MedusaError(MedusaError.Types.INVALID_DATA, "RedPagos: falta apiKey (o REDPAGOS_API_KEY)")
-    if (!webhookSecret) throw new MedusaError(MedusaError.Types.INVALID_DATA, "RedPagos: falta webhookSecret (o REDPAGOS_WEBHOOK_SECRET)")
+    if (!apiUrl) throw new MedusaError(MedusaError.Types.INVALID_DATA, "redpagos: falta apiUrl (o REDPAGOS_API_URL)")
+    if (!apiKey) throw new MedusaError(MedusaError.Types.INVALID_DATA, "redpagos: falta apiKey (o REDPAGOS_API_KEY)")
+    if (!webhookSecret) throw new MedusaError(MedusaError.Types.INVALID_DATA, "redpagos: falta webhookSecret (o REDPAGOS_WEBHOOK_SECRET)")
   }
 
   constructor(container: Dependencias, options: OpcionesRedpagos) {
@@ -91,7 +91,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
 
   private cobroId(data?: Record<string, unknown>) {
     const id = data?.cobro_id
-    if (typeof id !== "string") throw new MedusaError(MedusaError.Types.INVALID_DATA, "La sesión no tiene cobro_id de RedPagos")
+    if (typeof id !== "string") throw new MedusaError(MedusaError.Types.INVALID_DATA, "La sesión no tiene cobro_id de redpagos")
     return id
   }
 
@@ -105,7 +105,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
           : e.status === 409 ? MedusaError.Types.NOT_ALLOWED
           : e.status === 400 ? MedusaError.Types.INVALID_DATA
           : MedusaError.Types.UNEXPECTED_STATE
-        throw new MedusaError(tipo, `RedPagos: ${e.message}`, e.codigo)
+        throw new MedusaError(tipo, `redpagos: ${e.message}`, e.codigo)
       }
       throw e
     }
@@ -115,7 +115,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
   // el CVU se bloquea recién al confirmar la orden (authorizePayment).
   async initiatePayment({ amount, currency_code, data, context }: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
     if (currency_code.toLowerCase() !== "ars") {
-      throw new MedusaError(MedusaError.Types.INVALID_DATA, "RedPagos sólo cobra en pesos (ARS)")
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, "redpagos sólo cobra en pesos (ARS)")
     }
     const sessionId = data?.session_id
     const cobro = await this.llamar(() => this.api_.crear(
@@ -132,7 +132,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
 
   async updatePayment({ amount, currency_code, data }: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
     if (currency_code.toLowerCase() !== "ars") {
-      throw new MedusaError(MedusaError.Types.INVALID_DATA, "RedPagos sólo cobra en pesos (ARS)")
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, "redpagos sólo cobra en pesos (ARS)")
     }
     const cobro = await this.llamar(() => this.api_.actualizar(this.cobroId(data), aCentavos(new BigNumber(amount).numeric)))
     return { data: datos(cobro, data?.session_id), status: ESTADO_SESION[cobro.estado] }
@@ -150,7 +150,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
   async capturePayment({ data }: CapturePaymentInput): Promise<CapturePaymentOutput> {
     const cobro = await this.llamar(() => this.api_.obtener(this.cobroId(data)))
     if (cobro.estado !== "pagado") {
-      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "RedPagos: el cobro todavía no fue pagado; se captura solo cuando entra la transferencia")
+      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "redpagos: el cobro todavía no fue pagado; se captura solo cuando entra la transferencia")
     }
     return { data: datos(cobro, data?.session_id) }
   }
@@ -184,7 +184,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
   }
 
   async refundPayment(_: RefundPaymentInput): Promise<RefundPaymentOutput> {
-    throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "RedPagos no admite devoluciones")
+    throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "redpagos no admite devoluciones")
   }
 
   // POST /hooks/payment/redpagos_redpagos
@@ -192,7 +192,7 @@ class RedpagosProviderService extends AbstractPaymentProvider<OpcionesRedpagos> 
   // devuelve captured, y eso crea el pago ya capturado en la orden existente.
   async getWebhookActionAndData({ data, rawData, headers }: ProviderWebhookPayload["payload"]): Promise<WebhookActionResult> {
     if (!firmaValida(this.webhookSecret_, rawData, headers["x-redpagos-firma"])) {
-      this.logger_.warn("RedPagos: webhook con firma inválida, se ignora")
+      this.logger_.warn("redpagos: webhook con firma inválida, se ignora")
       return { action: PaymentActions.NOT_SUPPORTED }
     }
     const evento = data.evento as string

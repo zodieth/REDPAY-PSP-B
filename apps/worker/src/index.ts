@@ -1,7 +1,8 @@
 // Worker: lee cargavirtual por prioridad, vence cobros, libera cuarentenas y
 // manda webhooks. Se puede correr más de uno: cada CVU se "reclama" con SKIP LOCKED.
 import { buscarDepositos } from "@redpagos/cargavirtual";
-import { db, filas, migrar } from "@redpagos/db";
+import { db, filas } from "@redpagos/db";
+import { migrar } from "@redpagos/db/migraciones";
 import {
   credenciales, estadoPool, liberarCuarentenas, procesarCola, registrarDepositos, vencerCobros, type Cvu,
 } from "@redpagos/core";

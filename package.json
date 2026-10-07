@@ -14,6 +14,7 @@
   "scripts": {
     "api": "node --env-file-if-exists=.env apps/api/src/index.ts",
     "worker": "node --env-file-if-exists=.env apps/worker/src/index.ts",
+    "panel": "npm run dev --workspace @redpagos/panel",
     "migrar": "node --env-file-if-exists=.env packages/db/src/migrar.ts",
     "test": "node --env-file-if-exists=.env --test --test-concurrency=1 \"packages/*/test/*.test.ts\" \"test/*.test.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit"

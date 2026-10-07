@@ -91,10 +91,11 @@ async function bloquear(tx: Db, comercioId: string, cobroId: string) {
 }
 
 // Toma el CVU libre que hace más tiempo que no se usa. SKIP LOCKED: dos cobros
-// simultáneos nunca se llevan el mismo.
+// simultáneos nunca se llevan el mismo. Nunca uno que no se puede leer (sin
+// primera lectura o con error): el pago entraría y no lo veríamos.
 async function asignar(tx: Db, comercio: Comercio, cobro: Cobro) {
   const cvu = await fila<{ id: number }>(tx, `
-    SELECT id FROM cvus WHERE estado = 'libre' AND inicializado
+    SELECT id FROM cvus WHERE estado = 'libre' AND inicializado AND ultimo_error IS NULL
     ORDER BY libre_desde LIMIT 1 FOR UPDATE SKIP LOCKED`);
   if (!cvu) throw new ErrorRedpagos("pool_agotado", "No hay CVU disponibles en este momento", 503);
   await tx.query(

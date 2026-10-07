@@ -1,12 +1,12 @@
 # @redpagos/medusa-payment
 
-Provider de pagos de Medusa v2 (≥ 2.21) para cobrar por transferencia a CVU/alias con RedPagos.
+Provider de pagos de Medusa v2 (≥ 2.21) para cobrar por transferencia a CVU/alias con redpagos.
 
 ## Cómo funciona
 
-1. El comprador elige "Transferencia" y se crea un cobro en RedPagos, todavía sin CVU.
-2. Confirma la orden: RedPagos le bloquea un CVU exclusivo por 5 días. La orden se crea en `pending_authorization`, con el stock reservado.
-3. El comprador transfiere. RedPagos detecta el depósito y avisa por webhook, y la orden queda **pagada y capturada**.
+1. El comprador elige "Transferencia" y se crea un cobro en redpagos, todavía sin CVU.
+2. Confirma la orden: redpagos le bloquea un CVU exclusivo por 5 días. La orden se crea en `pending_authorization`, con el stock reservado.
+3. El comprador transfiere. redpagos detecta el depósito y avisa por webhook, y la orden queda **pagada y capturada**.
 4. Si vence sin pago, un job cancela la orden. Si se cancela la orden, se cancela el cobro y se libera el CVU.
 
 No hay devoluciones: `refundPayment` falla siempre.
@@ -49,7 +49,7 @@ El plugin se registra en `plugins` para que Medusa cargue el job de conciliació
 Pasos siguientes:
 
 1. Habilitar el provider `pp_redpagos_redpagos` en la región (Admin → Settings → Regions). La moneda tiene que ser **ARS**.
-2. Crear el webhook en RedPagos apuntando a la tienda y guardar el `secreto` que devuelve en `REDPAGOS_WEBHOOK_SECRET`:
+2. Crear el webhook en redpagos apuntando a la tienda y guardar el `secreto` que devuelve en `REDPAGOS_WEBHOOK_SECRET`:
 
 ```bash
 curl -X POST $REDPAGOS_API_URL/v1/webhooks -H "authorization: Bearer $REDPAGOS_API_KEY" \
