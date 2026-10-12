@@ -5,7 +5,7 @@ Pasarela de pagos por transferencia a CVU/alias. Cada orden bloquea un CVU exclu
 ```
 apps/api        API HTTP (Hono): /v1 para comercios, /admin para backoffice
 apps/worker     poller de cargavirtual, vencimientos, cuarentenas, webhooks
-apps/panel      backoffice de redpagos y panel de cada comercio (Next.js)
+apps/panel      backoffice de redpagos (Next.js)
 packages/db     Postgres + migraciones
 packages/core   lógica: pool, cobros, imputación, libro, webhooks
 packages/cargavirtual   cliente de cargavirtual (scraping, viene de pagoscvu)
@@ -22,23 +22,23 @@ npm install
 npm run db                # Postgres local en :5440 (sin Docker; datos en .datos-pg/). O: docker compose up -d
 npm run api               # en otra terminal: API en :3000
 npm run worker            # en otra terminal
-npm run panel             # en otra terminal: backoffice y panel de comercios en :3001
+npm run panel             # en otra terminal: backoffice en :3001
 ```
 
-## Panel
+## Backoffice
 
-Un solo sitio con dos roles. Entrar con el usuario de `ADMIN_EMAIL` / `ADMIN_PASSWORD`, que se crea solo en el primer arranque.
+Panel interno de redpagos (`apps/panel`, en :3001). Solo entra el equipo: el primer admin sale de `ADMIN_EMAIL` / `ADMIN_PASSWORD` y se crea solo en el primer arranque. Los comercios no tienen acceso; van a ver sus movimientos en RedChat, que los lee de la API (`/v1/saldo`, `/v1/movimientos`) con la API key de cada comercio.
 
-- **Backoffice** (`/admin`):
-  - **Resumen:** comisiones de hoy, 7 y 30 días; total a pagar a comercios; ocupación del pool; huérfanos; CVUs con error.
-  - **Comercios:** la ficha de cada cliente tiene saldo, totales, el registro de retiros en efectivo, la configuración y los ajustes de saldo. También cobros, movimientos, usuarios, API keys y el historial de cambios.
-  - **Configuración por comercio:** comisión, días de bloqueo y cuarentenas. Los cambios quedan con quién y cuándo, y la comisión nueva solo aplica a los depósitos que entren después.
-  - **CVUs:** estado del pool, alta de cuentas, habilitar o deshabilitar. Un CVU con error de lectura no se asigna.
-  - **Huérfanos:** depósitos sin cobro, con sugerencias de cobros que esperan ese importe.
-  - **Equipo:** admins de redpagos.
-- **Comercio** (`/panel`): su saldo, cobros, movimientos, retiros, webhooks y cambio de clave. Nada de otros comercios.
+- **Resumen:** comisiones de hoy, 7 y 30 días; total a pagar a comercios; ocupación del pool; huérfanos; CVUs con error.
+- **Comercios:**
+  - La ficha de cada cliente tiene saldo y totales, el registro de retiros en efectivo, la configuración y los ajustes de saldo.
+  - También muestra cobros y movimientos, webhooks, API keys y el historial de cambios.
+- **Configuración por comercio:** comisión, días de bloqueo y cuarentenas. Los cambios quedan registrados con quién y cuándo, y la comisión nueva solo aplica a los depósitos que entren después.
+- **CVUs:** estado del pool, alta de cuentas, habilitar o deshabilitar. Un CVU con error de lectura no se asigna.
+- **Huérfanos:** depósitos sin cobro, con sugerencias de cobros que esperan ese importe.
+- **Equipo:** admins de redpagos.
 
-Los usuarios de cada comercio se crean desde su ficha en el backoffice. La clave temporal se muestra una sola vez.
+`npm run demo` carga datos de ejemplo en una base vacía para revisar el backoffice. Esos CVUs son inventados, así que con esa base no hay que correr el worker.
 
 `npm test` levanta un Postgres embebido (o usa `TEST_DATABASE_URL`) y prueba el núcleo, la API y el plugin de Medusa compilado. Antes de correrlo hay que compilar el plugin: `cd packages/medusa-payment-redpagos && npm install && npm run build`.
 

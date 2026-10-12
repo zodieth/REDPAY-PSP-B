@@ -75,16 +75,6 @@ export async function registrarAjusteAccion(id: string, _prev: Resultado, form: 
   });
 }
 
-export async function crearUsuarioComercio(id: string, _prev: Resultado, form: FormData): Promise<Resultado> {
-  await requiereAdmin();
-  return intentar(async () => {
-    const clave = core.claveTemporal();
-    const nuevo = await core.crearUsuario({ email: texto(form, "email"), nombre: texto(form, "nombre"), clave, rol: "comercio", comercio_id: id });
-    revalidatePath(ficha(id));
-    return { ok: `Usuario ${nuevo.email} creado. Clave temporal:`, secreto: clave };
-  });
-}
-
 export async function crearAdmin(_prev: Resultado, form: FormData): Promise<Resultado> {
   await requiereAdmin();
   return intentar(async () => {
@@ -110,6 +100,32 @@ export async function cambiarMiClave(_prev: Resultado, form: FormData): Promise<
   return intentar(async () => {
     await core.cambiarClave(u.id, String(form.get("clave") ?? ""));
     return { ok: "Clave cambiada" };
+  });
+}
+
+export async function crearWebhookAccion(id: string, _prev: Resultado, form: FormData): Promise<Resultado> {
+  await requiereAdmin();
+  return intentar(async () => {
+    const w = await core.crearWebhook(id, texto(form, "url"));
+    revalidatePath(ficha(id));
+    return { ok: "Webhook creado. Secreto para la tienda (REDPAGOS_WEBHOOK_SECRET):", secreto: w.secreto };
+  });
+}
+
+export async function alternarWebhookAccion(id: string, webhookId: string, activo: boolean): Promise<Resultado> {
+  await requiereAdmin();
+  return intentar(async () => {
+    await core.actualizarWebhook(id, webhookId, { activo });
+    revalidatePath(ficha(id));
+    return { ok: activo ? "Activado" : "Pausado" };
+  });
+}
+
+export async function probarWebhookAccion(id: string, webhookId: string): Promise<Resultado> {
+  await requiereAdmin();
+  return intentar(async () => {
+    await core.enviarPing(id, webhookId);
+    return { ok: "Ping encolado; lo manda la API en unos segundos" };
   });
 }
 

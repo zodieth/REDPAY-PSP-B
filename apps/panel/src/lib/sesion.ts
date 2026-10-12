@@ -46,14 +46,6 @@ export const usuarioActual = cache(async (): Promise<Usuario | null> => {
 
 export async function requiereAdmin() {
   const u = await usuarioActual();
-  if (!u) redirect("/login");
-  if (u.rol !== "admin") redirect("/panel");
+  if (!u || u.rol !== "admin") redirect("/login");
   return u;
-}
-
-export async function requiereComercio() {
-  const u = await usuarioActual();
-  if (!u) redirect("/login");
-  if (u.rol !== "comercio" || !u.comercio_id) redirect("/admin");
-  return u as Usuario & { comercio_id: string };
 }

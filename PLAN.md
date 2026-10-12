@@ -70,14 +70,14 @@ Flujo "orden primero", con el estado `pending_authorization` que Medusa ≥ 2.21
    - Pool, cobros, imputación, libro con comisión, webhooks firmados.
    - API para comercios y backoffice.
    - Worker con poller por prioridad, vencimientos, cuarentenas y cola de webhooks.
-2. ✅ **Plugin de Medusa:** provider, job de conciliación, subscriber.
+2. ✅ **Plugin de Medusa (payment provider):** es lo que cobra en el checkout de cada tienda. Provider, job de conciliación, subscriber.
    - Falta probarlo en una tienda Medusa real.
-3. ✅ **Paneles** (`apps/panel`):
-   - Backoffice con ficha por comercio: comisión editable y auditada, retiros, ajustes, usuarios, API keys.
+3. ✅ **Backoffice** (`apps/panel`, solo el equipo de redpagos):
+   - Ficha por comercio: comisión editable y auditada, retiros, ajustes, webhooks, API keys.
    - Pool de CVUs, huérfanos con sugerencias, equipo.
-   - Panel del comercio.
-4. ⬜ **Link de pago / checkout alojado** para comercios sin Medusa: página con CVU, alias, QR y cuenta regresiva.
-5. ⬜ **Producción:**
+4. ⬜ **Movimientos en RedChat:** el comercio ve su saldo y movimientos en RedChat, leídos de `/v1/saldo` y `/v1/movimientos`.
+5. ⬜ **Link de pago / checkout alojado** para comercios sin Medusa: página con CVU, alias, QR y cuenta regresiva.
+6. ⬜ **Producción:**
    - Deploy de API y worker, Postgres con backups, proxy con IP argentina fija.
    - Alertas del pool por mail o WhatsApp, no solo en el log.
    - Carga masiva de CVUs.

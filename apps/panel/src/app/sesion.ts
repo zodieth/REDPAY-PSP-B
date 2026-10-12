@@ -7,9 +7,10 @@ import { texto, type Resultado } from "@/lib/acciones";
 
 export async function ingresar(_prev: Resultado, form: FormData): Promise<Resultado> {
   const u = await verificarLogin(texto(form, "email"), String(form.get("clave") ?? ""));
-  if (!u) return { error: "Email o clave incorrectos" };
+  // El panel es sólo para el equipo de redpagos: los comercios ven sus movimientos desde su tienda.
+  if (!u || u.rol !== "admin") return { error: "Email o clave incorrectos" };
   await crearSesion(u.id);
-  redirect(u.rol === "admin" ? "/admin" : "/panel");
+  redirect("/admin");
 }
 
 export async function salir() {

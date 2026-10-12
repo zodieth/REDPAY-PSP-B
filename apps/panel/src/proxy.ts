@@ -1,5 +1,5 @@
 // Chequeo rápido: sin cookie de sesión, al login. La verificación real (firma,
-// usuario activo, rol) la hace cada página y cada acción con requiereAdmin/requiereComercio.
+// usuario activo, rol) la hace cada página y cada acción con requiereAdmin.
 import { NextResponse, type NextRequest } from "next/server";
 
 export function proxy(req: NextRequest) {

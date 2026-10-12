@@ -5,8 +5,8 @@ import { FormAccion } from "@/components/form-accion";
 import { Campo, Estado, Seccion, Tabla, Tarjeta, input, td, tdNum, th, tipoMovimiento } from "@/components/ui";
 import { dias, fecha, pesos, porcentaje } from "@/lib/formato";
 import {
-  alternarUsuario, crearApiKeyAccion, crearUsuarioComercio, guardarConfiguracion,
-  registrarAjusteAccion, registrarRetiroAccion, revocarApiKeyAccion,
+  alternarWebhookAccion, crearApiKeyAccion, crearWebhookAccion, guardarConfiguracion,
+  probarWebhookAccion, registrarAjusteAccion, registrarRetiroAccion, revocarApiKeyAccion,
 } from "../../acciones";
 
 // Cómo se lee un cambio de configuración en el historial.
@@ -30,17 +30,16 @@ export default async function FichaComercio({ params }: PageProps<"/admin/comerc
   const comercio = await core.obtenerComercio(id).catch(() => null);
   if (!comercio) notFound();
 
-  const [saldo, totales, cobros, movimientos, retiros, usuarios, keys, auditoria] = await Promise.all([
+  const [saldo, totales, cobros, movimientos, retiros, webhooks, keys, auditoria] = await Promise.all([
     core.saldo(id),
     core.totalesComercio(id, 30),
     core.listarCobros(id, { limite: 50 }),
     core.listarMovimientos(id, { limite: 100 }),
     core.listarRetiros(id) as Promise<{ id: string; importe: number; entregado_por: string; recibido_por: string; comprobante: string | null; notas: string | null; creado_at: Date }[]>,
-    core.listarUsuarios({ comercio_id: id }),
+    core.listarWebhooks(id),
     core.listarApiKeys(id),
     core.listarAuditoria(id, 50),
   ]);
-  const ruta = `/admin/comercios/${id}`;
 
   return (
     <>
@@ -178,28 +177,30 @@ export default async function FichaComercio({ params }: PageProps<"/admin/comerc
       </Seccion>
 
       <div id="accesos" className="grid scroll-mt-6 gap-10 lg:grid-cols-2">
-        <Seccion titulo="Usuarios del panel">
-          <Tabla filas={usuarios.length} vacio="Sin usuarios">
+        <Seccion titulo="Webhooks">
+          <p className="text-sm text-zinc-500">A dónde avisamos los pagos. Con Medusa: https://tienda/hooks/payment/redpagos_redpagos</p>
+          <Tabla filas={webhooks.length} vacio="Sin webhooks">
             <tbody>
-              {usuarios.map((u) => (
-                <tr key={u.id}>
-                  <td className={td}>{u.nombre ?? "—"}<br /><span className="text-xs text-zinc-500">{u.email}</span></td>
-                  <td className={td}>{u.activo ? "activo" : <Estado valor="inactivo" />}<br /><span className="text-xs text-zinc-500">último ingreso {fecha(u.ultimo_login)}</span></td>
+              {webhooks.map((w) => (
+                <tr key={w.id}>
+                  <td className={`${td} break-all font-mono text-xs`}>{w.url} {!w.activo && <Estado valor="cancelado" />}</td>
                   <td className={td}>
-                    <FormAccion accion={alternarUsuario.bind(null, u.id, !u.activo, ruta)} boton={u.activo ? "Desactivar" : "Activar"} variante="secundario" />
+                    <div className="flex gap-2">
+                      <FormAccion accion={probarWebhookAccion.bind(null, id, w.id)} boton="Probar" variante="secundario" />
+                      <FormAccion accion={alternarWebhookAccion.bind(null, id, w.id, !w.activo)} boton={w.activo ? "Pausar" : "Activar"} variante="secundario" />
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </Tabla>
-          <FormAccion accion={crearUsuarioComercio.bind(null, id)} boton="Crear usuario" variante="secundario" className="grid gap-3 sm:grid-cols-2">
-            <Campo etiqueta="Email"><input name="email" type="email" required className={input} /></Campo>
-            <Campo etiqueta="Nombre"><input name="nombre" className={input} /></Campo>
+          <FormAccion accion={crearWebhookAccion.bind(null, id)} boton="Agregar webhook" variante="secundario" className="space-y-3">
+            <Campo etiqueta="URL"><input name="url" type="url" required placeholder="https://" className={input} /></Campo>
           </FormAccion>
         </Seccion>
 
         <Seccion titulo="API keys">
-          <p className="text-sm text-zinc-500">Para la integración (plugin de Medusa o API). Se ven completas una sola vez.</p>
+          <p className="text-sm text-zinc-500">Para la app de la tienda (plugin de Medusa): cobra y le muestra al comercio su saldo y movimientos. Se ven completas una sola vez.</p>
           <Tabla filas={keys.length} vacio="Sin API keys">
             <tbody>
               {keys.map((k) => (
